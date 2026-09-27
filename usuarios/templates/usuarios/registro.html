@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro  Cazadores de Pigmentos</title>
+</head>
+<body>
+    <div class="contenedor-registro">
+        <h2>Crea tu cuenta de Cazadores de Pigmentos</h2>
+
+        <form mathod="POST">
+
+            {% csrf_token %}
+
+            {{ form.as_p}}
+
+            <button type="submit">Convertirme en Cazador</button>
+        </form>
+    </div>
+</body>
+</html>
