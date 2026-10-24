@@ -1,6 +1,22 @@
 {% extends 'usuarios/base_admin.html' %}
 {% block content %}
 <h2>2. Gestión de Roles</h2>
+<style>
+    #id_permissions{
+        column-count: 2;
+        column-gap: 20px;
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 10px;
+    }
+    #id_permissions li {
+        margin-bottom: 8px;
+        background-color: #f8f9fa;
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #e9ecef;
+    }
+</style>
 
 <form method="post">
     {% csrf_token %}

@@ -1,7 +1,9 @@
 {% extends 'usuarios/base_admin.html' %}
 {% block content %}
 <h2>3. Gestión de Usuarios y sus Permisos Heredados</h2>
-
+<div style ="margin-bottom: 15px;">
+    <a href="{%url 'crear_usuario' %}" class="btn" style="background-color: #28a745; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px;"> Nuevo Usuario</a>
+</div>
 <table>
     <thead>
         <tr>
@@ -39,6 +41,8 @@
             </td>
             <td>
                 <a href="{% url 'asignar_roles_usuario' u.id %}" class="btn btn-edit">Asignar Roles</a>
+                <a href="{% url 'editar_usuario' u.id %}" class="btn" style="background-color: #17a2b8; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px; margin-left: 5px;">Editar</a>
+                <a href="{% url 'eliminar_usuario' u.id %}" class="btn" style="background-color: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px; margin-left: 5px;">Eliminar</a>
             </td>
         </tr>
         {% endfor %}

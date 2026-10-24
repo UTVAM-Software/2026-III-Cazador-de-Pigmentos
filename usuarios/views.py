@@ -6,13 +6,17 @@ from django.contrib.auth import login, logout
 from django.core.exceptions import PermissionDenied
 from .forms import RolForm, AsignarRolUsuarioForm, PermisoForm, RegistroUsuarioForm
 from .models import PerfilUsuario
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.forms import UserCreationForm
 
-# --- FUNCIÓN DE VERIFICACIÓN: Solo permite Superusuarios o Staff ---
+# FUNCIÓN DE VERIFICACIÓN
 def es_administrador(user):
     return user.is_authenticated and (user.is_superuser or user.is_staff)
 
 
-# --- VISTA DE REGISTRO (PÚBLICA) ---
+#  VISTA DE REGISTRO 
 def registro_view(request):
     if request.user.is_authenticated:
         if es_administrador(request.user):
@@ -22,8 +26,9 @@ def registro_view(request):
     if request.method == 'POST':
         form = RegistroUsuarioForm(request.POST)
         if form.is_valid():
-            usuario = form.save()
-            # Se crea automáticamente su perfil de jugador con datos básicos
+            usuario = form.save(commit=False)
+            usuario.save()
+           
             PerfilUsuario.objects.create(usuario=usuario)
             return redirect('login')
     else:
@@ -32,7 +37,7 @@ def registro_view(request):
     return render(request, 'usuarios/registro.html', {'form': form})
 
 
-# --- VISTA DE LOGIN ---
+#  VISTA  LOGIN 
 def login_view(request):
     if request.user.is_authenticated:
         if es_administrador(request.user):
@@ -62,14 +67,14 @@ def logout_view(request):
     return redirect('login')
 
 
-# --- VISTA PARA JUGADORES NORMALES ---
+# VISTA PARA JUGADORES NORMALES 
 @login_required
 def bienvenida_jugador(request):
-    perfil = request.user.perfilusuario
+    perfil, created = PerfilUsuario.objects.get_or_create(usuario=request.user)
     return render(request, 'usuarios/bienvenida_jugador.html', {'perfil': perfil})
 
 
-# --- VISTAS PROTEGIDAS (SOLO ADMINISTRADORES) ---
+# VISTAS PROTEGIDAS (SOLO ADMINISTRADORES) 
 
 @user_passes_test(es_administrador, login_url='login')
 def dashboard_admin(request):
@@ -129,3 +134,59 @@ def asignar_roles_usuario(request, user_id):
         form.save()
         return redirect('gestion_usuarios_roles')
     return render(request, 'usuarios/asignar_roles.html', {'form': form, 'usuario_obj': usuario_obj})
+
+@user_passes_test(es_administrador, login_url='login')
+def eliminar_rol(request, role_id):
+    rol = get_object_or_404(Group, id=role_id)
+    if request.method == 'POST':
+        rol.delete()
+        return redirect('gestion_roles')
+    return render(request, 'usuarios/eliminar.html', {'objeto': rol})
+
+class UsuarioCreateView(UserPassesTestMixin, CreateView):
+    model = User
+    fields = ['username', 'email', 'password']
+    template_name = 'usuarios/crud/model_form.html'
+    success_url = reverse_lazy('gestion_usuarios_roles')
+
+    def test_func(self):
+        return es_administrador(self.request.user)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['list_url'] = 'gestion_usuarios_roles' 
+        return context
+
+class UsuarioUpdateView(UserPassesTestMixin, UpdateView):
+    model = User
+    fields = ['username', 'email']
+    template_name = 'usuarios/crud/model_form.html'
+    success_url = reverse_lazy('gestion_usuarios_roles')
+
+    def test_func(self):
+        return es_administrador(self.request.user)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['list_url'] = 'gestion_usuarios_roles'
+        return context
+
+class UsuarioDeleteView(UserPassesTestMixin, DeleteView):
+    model = User
+    template_name = 'usuarios/eliminar.html'
+    success_url = reverse_lazy('gestion_usuarios_roles')
+
+    def test_func(self):
+        return es_administrador(self.request.user)
+
+class UsuarioCreateView(UserPassesTestMixin, CreateView):
+    model = User 
+    form_class = UserCreationForm 
+    template_name = 'usuarios/crud/model_form.html'
+    success_url = reverse_lazy('gestion_usuarios_roles')
+
+    def test_func(self):
+        return es_administrador(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['list_url'] = 'gestion_usuarios_roles' 
+        return context  

@@ -64,4 +64,7 @@ urlpatterns = [
         EvaluacionDeleteView.as_view(),
         name="evaluacion_eliminar",
     ),
+    path('crear/', views.UsuarioCreateView.as_view(), name='crear_usuario'),
+    path('editar/<int:pk>/', views.UsuarioUpdateView.as_view(), name='editar_usuario'),
+    path('eliminar/<int:pk>/', views.UsuarioDeleteView.as_view(), name='eliminar_usuario'),
 ]
