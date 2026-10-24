@@ -10,11 +10,11 @@ ALLOWED_HOSTS = os.getenv(
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.local.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
-LOGGING["loggers"]["django"]["level"] = "DEBUG"
+LOGGING["loggers"]["django"]["level"] = "WARNING"
 
 if not SECRET_KEY:
     raise RuntimeError("Define DJANGO_SECRET_KEY en el archivo .env")
