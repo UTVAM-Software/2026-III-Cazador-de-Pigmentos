@@ -46,17 +46,17 @@
         <p class="map-feedback map-feedback--{{ message.tags }}" role="status">{{ message }}</p>
     {% endfor %}
 
-    <section class="treasure-route" aria-label="Ruta de {{ levels|length }} niveles">
+    <section class="treasure-route" aria-label="Ruta de {{ levels|length }} niveles" style="--desktop-route-rows: {{ desktop_route_rows }}; --mobile-route-rows: {{ mobile_route_rows }};">
         <svg class="treasure-route__trail treasure-route__trail--desktop" viewBox="0 0 1000 800" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M100 740 C300 710 700 770 900 740 C930 700 870 620 900 570 C700 540 300 600 100 570 C70 530 130 450 100 400 C300 370 700 430 900 400 C930 360 870 280 900 230 C700 200 300 260 100 230 C70 190 130 110 100 60 C300 30 700 90 900 60"/>
+            <path d="{{ desktop_route_path }}"/>
         </svg>
         <svg class="treasure-route__trail treasure-route__trail--mobile" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M500 944 C610 920 720 968 833 944 C875 920 800 870 833 833 C700 800 350 866 167 833 C120 800 200 760 167 722 C350 690 650 755 833 722 C875 690 800 650 833 611 C700 580 350 644 167 611 C120 580 200 540 167 500 C350 470 650 535 833 500 C875 470 800 430 833 389 C700 360 350 424 167 389 C120 360 200 320 167 278 C350 248 650 313 833 278 C875 248 800 208 833 167 C700 138 350 202 167 167 C120 138 200 98 167 56 C280 26 390 86 500 56"/>
+            <path d="{{ mobile_route_path }}"/>
         </svg>
         <div class="treasure-route__nodes">
             {% for item in levels %}
                 {% if item.unlocked %}
-                    <a href="{% url 'jugar_nivel' item.level.number %}" class="treasure-node{% if forloop.last %} treasure-node--treasure{% endif %}{% if item.level.number == 5 or item.level.number == 10 or item.level.number == 15 or item.level.number == 20 or item.level.number == 25 %} treasure-node--milestone{% endif %}{% if item.completed %} treasure-node--completed{% endif %}{% if item.level.number == player.current_level_reached %} treasure-node--current{% endif %}">
+                    <a href="{% url 'jugar_nivel' item.level.number %}" class="treasure-node{% if forloop.last %} treasure-node--treasure{% endif %}{% if item.level.number == 5 or item.level.number == 10 or item.level.number == 15 or item.level.number == 20 or item.level.number == 25 %} treasure-node--milestone{% endif %}{% if item.completed %} treasure-node--completed{% endif %}{% if item.level.number == player.current_level_reached %} treasure-node--current{% endif %}" style="--node-desktop-row: {{ item.desktop_row }}; --node-desktop-col: {{ item.desktop_col }}; --node-mobile-row: {{ item.mobile_row }}; --node-mobile-col: {{ item.mobile_col }};">
                         <span class="treasure-node__number">{{ item.level.number }}</span>
                         <span class="treasure-node__name">{{ item.level.title }}</span>
                         {% if item.level.number == 5 or item.level.number == 10 or item.level.number == 15 or item.level.number == 20 or item.level.number == 25 %}
@@ -77,7 +77,7 @@
                         {% endif %}
                     </a>
                 {% else %}
-                    <span class="treasure-node treasure-node--locked" aria-label="Nivel {{ item.level.number }} bloqueado">
+                    <span class="treasure-node treasure-node--locked" aria-label="Nivel {{ item.level.number }} bloqueado" style="--node-desktop-row: {{ item.desktop_row }}; --node-desktop-col: {{ item.desktop_col }}; --node-mobile-row: {{ item.mobile_row }}; --node-mobile-col: {{ item.mobile_col }};">
                         <span class="treasure-node__number">{{ item.level.number }}</span>
                         <span class="treasure-node__name">{{ item.level.title }}</span>
                         <span class="treasure-node__status" aria-hidden="true">

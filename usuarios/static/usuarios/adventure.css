@@ -844,38 +844,72 @@ textarea:focus-visible {
 
 .level-list {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
 }
 
 .level-item {
-    display: flex;
+    display: grid;
     min-width: 0;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 15px;
-    border: 1px solid #e0d1b3;
+    min-height: 172px;
+    align-content: start;
+    gap: 7px;
+    padding: 14px;
+    border: 1px solid #3e6660;
     border-radius: 12px;
-    background: #fffdf7;
+    background: linear-gradient(145deg, #1d3533, #172d2b);
+    color: #f5f8f3;
 }
 
 .level-item h3 {
     margin: 0 0 4px;
-    color: #263d38;
-    font-size: 0.96rem;
+    color: #f5f8f3;
+    font-size: 0.88rem;
 }
 
 .level-item p {
     margin: 0;
-    color: #66716b;
-    font-size: 0.84rem;
+    color: #d8e2dc;
+    font-size: 0.78rem;
 }
 
 .level-locked,
 .levels-empty {
     color: #68716a;
     font-size: 0.88rem;
+}
+
+.level-item__icon {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    margin-bottom: 2px;
+    border-radius: 50%;
+    background: #dce9d1;
+    color: #315b46;
+}
+
+.level-item__icon .icon {
+    width: 18px;
+    height: 18px;
+}
+
+.level-item--locked {
+    border-color: #53615d;
+    background: #31413e;
+    filter: saturate(0.55);
+}
+
+.level-item--locked .level-locked {
+    display: inline-flex;
+    align-items: center;
+    color: #d8e0dc;
+    font-weight: 800;
+}
+
+.level-item--completed {
+    border-color: #4f7a70;
 }
 
 /* Mapa de la expedición */
@@ -2659,10 +2693,6 @@ textarea:focus-visible {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .level-list {
-        grid-template-columns: 1fr;
-    }
-
     .treasure-map {
         padding: 16px 12px;
     }
@@ -2942,7 +2972,7 @@ textarea:focus-visible {
 }
 
 .level-list {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .profile-card,
@@ -3408,31 +3438,20 @@ textarea:focus-visible {
     height: 12px;
 }
 
-.map-screen .treasure-node:nth-child(1) { grid-area: 9 / 2; }
-.map-screen .treasure-node:nth-child(2) { grid-area: 9 / 3; }
-.map-screen .treasure-node:nth-child(3) { grid-area: 8 / 3; }
-.map-screen .treasure-node:nth-child(4) { grid-area: 8 / 2; }
-.map-screen .treasure-node:nth-child(5) { grid-area: 8 / 1; }
-.map-screen .treasure-node:nth-child(6) { grid-area: 7 / 1; }
-.map-screen .treasure-node:nth-child(7) { grid-area: 7 / 2; }
-.map-screen .treasure-node:nth-child(8) { grid-area: 7 / 3; }
-.map-screen .treasure-node:nth-child(9) { grid-area: 6 / 3; }
-.map-screen .treasure-node:nth-child(10) { grid-area: 6 / 2; }
-.map-screen .treasure-node:nth-child(11) { grid-area: 6 / 1; }
-.map-screen .treasure-node:nth-child(12) { grid-area: 5 / 1; }
-.map-screen .treasure-node:nth-child(13) { grid-area: 5 / 2; }
-.map-screen .treasure-node:nth-child(14) { grid-area: 5 / 3; }
-.map-screen .treasure-node:nth-child(15) { grid-area: 4 / 3; }
-.map-screen .treasure-node:nth-child(16) { grid-area: 4 / 2; }
-.map-screen .treasure-node:nth-child(17) { grid-area: 4 / 1; }
-.map-screen .treasure-node:nth-child(18) { grid-area: 3 / 1; }
-.map-screen .treasure-node:nth-child(19) { grid-area: 3 / 2; }
-.map-screen .treasure-node:nth-child(20) { grid-area: 3 / 3; }
-.map-screen .treasure-node:nth-child(21) { grid-area: 2 / 3; }
-.map-screen .treasure-node:nth-child(22) { grid-area: 2 / 2; }
-.map-screen .treasure-node:nth-child(23) { grid-area: 2 / 1; }
-.map-screen .treasure-node:nth-child(24) { grid-area: 1 / 1; }
-.map-screen .treasure-node:nth-child(25) { grid-area: 1 / 2; }
+.map-screen .treasure-node {
+    grid-area: var(--node-mobile-row, auto) / var(--node-mobile-col, auto);
+}
+
+@media (max-width: 760px) {
+    .map-screen .treasure-route {
+        height: calc(var(--mobile-route-rows, 9) * 96px);
+        max-height: none;
+    }
+
+    .map-screen .treasure-route__nodes {
+        grid-template-rows: repeat(var(--mobile-route-rows, 9), minmax(0, 1fr));
+    }
+}
 
 .map-note {
     margin: 0;
@@ -3454,7 +3473,8 @@ textarea:focus-visible {
 @media (min-width: 761px) {
     .map-screen .treasure-route {
         width: min(100%, 1120px);
-        height: clamp(560px, 52vw, 680px);
+        height: calc(var(--desktop-route-rows, 5) * 136px);
+        min-height: clamp(560px, 52vw, 680px);
         max-width: 1120px;
     }
 
@@ -3477,35 +3497,13 @@ textarea:focus-visible {
     }
 
     .map-screen .treasure-route__nodes {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        grid-template-rows: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-rows: repeat(var(--desktop-route-rows, 5), minmax(0, 1fr));
     }
 
-    .map-screen .treasure-node:nth-child(1) { grid-area: 5 / 1; }
-    .map-screen .treasure-node:nth-child(2) { grid-area: 5 / 2; }
-    .map-screen .treasure-node:nth-child(3) { grid-area: 5 / 3; }
-    .map-screen .treasure-node:nth-child(4) { grid-area: 5 / 4; }
-    .map-screen .treasure-node:nth-child(5) { grid-area: 5 / 5; }
-    .map-screen .treasure-node:nth-child(6) { grid-area: 4 / 5; }
-    .map-screen .treasure-node:nth-child(7) { grid-area: 4 / 4; }
-    .map-screen .treasure-node:nth-child(8) { grid-area: 4 / 3; }
-    .map-screen .treasure-node:nth-child(9) { grid-area: 4 / 2; }
-    .map-screen .treasure-node:nth-child(10) { grid-area: 4 / 1; }
-    .map-screen .treasure-node:nth-child(11) { grid-area: 3 / 1; }
-    .map-screen .treasure-node:nth-child(12) { grid-area: 3 / 2; }
-    .map-screen .treasure-node:nth-child(13) { grid-area: 3 / 3; }
-    .map-screen .treasure-node:nth-child(14) { grid-area: 3 / 4; }
-    .map-screen .treasure-node:nth-child(15) { grid-area: 3 / 5; }
-    .map-screen .treasure-node:nth-child(16) { grid-area: 2 / 5; }
-    .map-screen .treasure-node:nth-child(17) { grid-area: 2 / 4; }
-    .map-screen .treasure-node:nth-child(18) { grid-area: 2 / 3; }
-    .map-screen .treasure-node:nth-child(19) { grid-area: 2 / 2; }
-    .map-screen .treasure-node:nth-child(20) { grid-area: 2 / 1; }
-    .map-screen .treasure-node:nth-child(21) { grid-area: 1 / 1; }
-    .map-screen .treasure-node:nth-child(22) { grid-area: 1 / 2; }
-    .map-screen .treasure-node:nth-child(23) { grid-area: 1 / 3; }
-    .map-screen .treasure-node:nth-child(24) { grid-area: 1 / 4; }
-    .map-screen .treasure-node:nth-child(25) { grid-area: 1 / 5; }
+    .map-screen .treasure-node {
+        grid-area: var(--node-desktop-row, auto) / var(--node-desktop-col, auto);
+    }
 }
 
 @media (max-width: 760px) {

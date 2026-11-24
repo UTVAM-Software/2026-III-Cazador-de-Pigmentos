@@ -5,7 +5,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
-from niveles.models import Player
+from niveles.models import Level, LevelKind, Player
 
 
 class AdventureInterfaceTests(TestCase):
@@ -47,7 +47,7 @@ class AdventureInterfaceTests(TestCase):
         self.assertContains(map_page, "treasure-route__trail--desktop")
         self.assertContains(map_page, "treasure-route__trail--mobile")
         self.assertContains(map_page, "treasure-node--current")
-        self.assertContains(map_page, "C610 920")
+        self.assertContains(map_page, "treasure-route__trail")
         self.assertEqual(map_page.content.count(b'class="treasure-node '), 25)
         self.assertContains(map_page, reverse("jugar_nivel", args=[1]))
 
@@ -75,6 +75,39 @@ class AdventureInterfaceTests(TestCase):
         response = self.client.get(reverse("detalle_nivel", args=[1]))
 
         self.assertRedirects(response, reverse("jugar_nivel", args=[1]))
+
+    def test_custom_level_is_listed_and_shown_on_the_map(self):
+        Level.objects.create(
+            number=26,
+            kind=LevelKind.MIX,
+            title="Nivel personalizado",
+            instruction="Resuelve el nivel personalizado.",
+        )
+        Level.objects.create(
+            number=27,
+            kind=LevelKind.BRANDING,
+            title="Segundo nivel personalizado",
+            instruction="Resuelve el segundo nivel personalizado.",
+        )
+        self.client.force_login(self.player)
+
+        welcome = self.client.get(reverse("bienvenida_jugador"))
+        map_page = self.client.get(reverse("mapa_niveles"))
+
+        self.assertContains(welcome, "Nivel 26: Nivel personalizado")
+        self.assertContains(welcome, "Bloqueado")
+        self.assertNotContains(welcome, "Abrir mapa de niveles")
+        self.assertNotContains(welcome, 'data-filter="completed"')
+        self.assertContains(map_page, "Nivel personalizado")
+        self.assertContains(map_page, "treasure-node--locked")
+        self.assertContains(
+            map_page,
+            "--node-desktop-row: 1; --node-desktop-col: 6;",
+        )
+        self.assertContains(
+            map_page,
+            "--node-desktop-row: 1; --node-desktop-col: 5;",
+        )
 
     def test_shared_design_has_responsive_and_reduced_motion_rules(self):
         stylesheet = (
