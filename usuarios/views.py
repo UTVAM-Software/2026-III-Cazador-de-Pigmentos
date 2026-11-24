@@ -103,22 +103,102 @@ def mapa_niveles(request):
         item.level_id: item
         for item in LevelProgress.objects.filter(player=player)
     }
-    levels = [
-        {
+    levels = []
+    active_levels = list(Level.objects.filter(active=True).order_by("number"))
+    has_extended_route = len(active_levels) > 25
+    max_desktop_row = 1 + ((len(active_levels) - 26) // 6) if len(active_levels) > 25 else 5
+    max_mobile_row = 1 + ((len(active_levels) - 26) // 3) if len(active_levels) > 25 else 9
+    desktop_rows = max(6 if has_extended_route else 5, max_desktop_row)
+    mobile_rows = max(10 if has_extended_route else 9, max_mobile_row)
+    desktop_positions = {
+        1: (5, 1), 2: (5, 2), 3: (5, 3), 4: (5, 4), 5: (5, 5),
+        6: (4, 5), 7: (4, 4), 8: (4, 3), 9: (4, 2), 10: (4, 1),
+        11: (3, 1), 12: (3, 2), 13: (3, 3), 14: (3, 4), 15: (3, 5),
+        16: (2, 5), 17: (2, 4), 18: (2, 3), 19: (2, 2), 20: (2, 1),
+        21: (1, 1), 22: (1, 2), 23: (1, 3), 24: (1, 4), 25: (1, 5),
+    }
+    mobile_positions = {
+        1: (9, 2), 2: (9, 3), 3: (8, 3), 4: (8, 2), 5: (8, 1),
+        6: (7, 1), 7: (7, 2), 8: (7, 3), 9: (6, 3), 10: (6, 2),
+        11: (6, 1), 12: (5, 1), 13: (5, 2), 14: (5, 3), 15: (4, 3),
+        16: (4, 2), 17: (4, 1), 18: (3, 1), 19: (3, 2), 20: (3, 3),
+        21: (2, 3), 22: (2, 2), 23: (2, 1), 24: (1, 1), 25: (1, 2),
+    }
+
+    for level in active_levels:
+        number = level.number
+        if number <= 25:
+            base_desktop_row, desktop_col = desktop_positions[number]
+            base_mobile_row, mobile_col = mobile_positions[number]
+            desktop_row = base_desktop_row + 1 if has_extended_route else base_desktop_row
+            mobile_row = base_mobile_row + 1 if has_extended_route else base_mobile_row
+        else:
+            desktop_offset = number - 26
+            desktop_segment = desktop_offset // 6
+            desktop_index = desktop_offset % 6
+            desktop_row = 1 + desktop_segment
+            desktop_col = (
+                6 - desktop_index
+                if desktop_segment % 2 == 0
+                else desktop_index + 1
+            )
+
+            mobile_offset = number - 26
+            mobile_segment = mobile_offset // 3
+            mobile_index = mobile_offset % 3
+            mobile_row = 1 + mobile_segment
+            mobile_col = (
+                3 - mobile_index
+                if mobile_segment % 2 == 0
+                else mobile_index + 1
+            )
+
+        levels.append({
             "level": level,
-            "unlocked": level.number <= player.current_level_reached,
+            "unlocked": number <= player.current_level_reached,
             "completed": (
                 progress_by_level[level.pk].completed
                 if level.pk in progress_by_level
                 else False
             ),
-        }
-        for level in Level.objects.filter(active=True, number__lte=25).order_by("number")
-    ]
+            "desktop_row": desktop_row,
+            "desktop_col": desktop_col,
+            "mobile_row": mobile_row,
+            "mobile_col": mobile_col,
+        })
+    desktop_points = []
+    mobile_points = []
+    for item in levels:
+        desktop_x = (item["desktop_col"] - 0.5) * (1000 / 6)
+        desktop_y = (item["desktop_row"] - 0.5) * (800 / desktop_rows)
+        desktop_points.append((desktop_x, desktop_y))
+        mobile_x = (item["mobile_col"] - 0.5) * (1000 / 3)
+        mobile_y = (item["mobile_row"] - 0.5) * (1000 / mobile_rows)
+        mobile_points.append((mobile_x, mobile_y))
+
+    def build_route_path(points):
+        if not points:
+            return ""
+        path = [f"M {points[0][0]:.1f} {points[0][1]:.1f}"]
+        for x, y in points[1:]:
+            path.append(f"L {x:.1f} {y:.1f}")
+        return " ".join(path)
+
+    desktop_route_path = build_route_path(desktop_points)
+    mobile_route_path = build_route_path(mobile_points)
+
     return render(
         request,
         "usuarios/mapa.html",
-        {"levels": levels, "perfil": perfil, "player": player},
+        {
+            "levels": levels,
+            "perfil": perfil,
+            "player": player,
+            "desktop_route_rows": desktop_rows,
+            "mobile_route_rows": mobile_rows,
+            "desktop_route_path": desktop_route_path,
+            "mobile_route_path": mobile_route_path,
+        },
     )
 
 def is_admin(user):
